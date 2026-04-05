@@ -40,5 +40,10 @@ yarn-error.*
 /ios
 /android
 
+# AI tools
+.qwen/
+.cursor/
+.ollama/
+
 *storybook.log
 storybook-static

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-native';
+import { View } from 'react-native';
 import { RangeSlider } from '../components/atoms/RangeSlider';
 import type { RangeSliderProps } from '../components/atoms/RangeSlider/RangeSlider.types';
 
@@ -12,6 +13,11 @@ const meta: Meta<RangeSliderProps> = {
     onValueChange: () => {},
     onValuesChange: () => {},
   },
+  render: (args) => (
+    <View className="px-8 py-10 w-[800px]">
+      <RangeSlider {...args} />
+    </View>
+  ),
 };
 
 export default meta;
@@ -43,4 +49,3 @@ export const MultiPoint: Story = {
     step: 1,
   },
 };
-

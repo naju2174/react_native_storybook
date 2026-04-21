@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
 import type { RangeSliderProps } from './RangeSlider.types';
 
-const PRIMARY = '#555ab9';
+const PRIMARY = '#2563eb';
 const TRACK_COLOR = '#e0e3e7';
-const THUMB_SIZE = 22;
-const TRACK_HEIGHT = 3;
+const THUMB_SIZE = 48;
+const TRACK_HEIGHT = 12;
 
 export const RangeSlider = ({
   value,
@@ -72,7 +72,7 @@ export const RangeSlider = ({
       style={{
         position: 'relative',
         width: '100%',
-        height: THUMB_SIZE + 20,
+        height: THUMB_SIZE + 16,
         display: 'flex',
         alignItems: 'center',
         userSelect: 'none',

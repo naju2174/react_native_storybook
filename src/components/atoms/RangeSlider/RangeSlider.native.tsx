@@ -1,11 +1,8 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { View, StyleSheet, PanResponder, LayoutChangeEvent } from 'react-native';
+import { View, PanResponder, LayoutChangeEvent } from 'react-native';
 import type { RangeSliderProps } from './RangeSlider.types';
 
-const PRIMARY = '#555ab9';
-const TRACK_COLOR = '#e0e3e7';
-const THUMB_SIZE = 22;
-const TRACK_HEIGHT = 3;
+const THUMB_SIZE = 48;
 
 export const RangeSlider = ({
   value,
@@ -27,9 +24,9 @@ export const RangeSlider = ({
   thumbValuesRef.current = thumbValues;
   const containerWidthRef = useRef(0);
 
-  const tw = () => Math.max(0, containerWidthRef.current - THUMB_SIZE);
+  const getUsableTrackWidth = () => Math.max(0, containerWidthRef.current - THUMB_SIZE);
 
-  const valueToPct = (v: number) => (v - min) / (max - min);
+  const valueToPercent = (sliderValue: number) => (sliderValue - min) / (max - min);
 
   const createPR = (thumbIndex: number) => {
     const startValueRef = { current: 0 };
@@ -40,7 +37,7 @@ export const RangeSlider = ({
         startValueRef.current = thumbValuesRef.current[thumbIndex];
       },
       onPanResponderMove: (_, { dx }) => {
-        const trackWidth = tw();
+        const trackWidth = getUsableTrackWidth();
         if (!trackWidth) return;
         const dValue = (dx / trackWidth) * (max - min);
         const raw = startValueRef.current + dValue;
@@ -70,18 +67,22 @@ export const RangeSlider = ({
     containerWidthRef.current = nativeEvent.layout.width;
   };
 
-  const trackWidth = tw();
-  const thumbLeft = (v: number) => valueToPct(v) * trackWidth;
+  const trackWidth = getUsableTrackWidth();
+  const thumbLeft = (thumbValue: number) => valueToPercent(thumbValue) * trackWidth;
 
   const sorted = [...thumbValues].sort((a, b) => a - b);
-  const activeLeft = thumbValues.length === 1 ? 0 : valueToPct(sorted[0]) * trackWidth;
-  const activeWidth = valueToPct(sorted[sorted.length - 1]) * trackWidth - activeLeft;
+  const activeLeft = thumbValues.length === 1 ? 0 : valueToPercent(sorted[0]) * trackWidth;
+  const activeWidth = valueToPercent(sorted[sorted.length - 1]) * trackWidth - activeLeft;
 
   return (
-    <View style={styles.container} onLayout={handleLayout}>
-      <View style={styles.track} pointerEvents="none">
+    <View className="w-full h-[68px] justify-center relative" onLayout={handleLayout}>
+      <View
+        className="absolute left-[24px] right-[24px] h-[6px] bg-[#e0e3e7] rounded-full"
+        pointerEvents="none"
+      >
         <View
-          style={[styles.activeTrack, { left: activeLeft, width: Math.max(0, activeWidth) }]}
+          className="absolute h-[6px] rounded-full"
+          style={{ left: activeLeft, width: Math.max(0, activeWidth), backgroundColor: '#2563eb' }}
         />
       </View>
 
@@ -89,48 +90,10 @@ export const RangeSlider = ({
         <View
           key={idx}
           {...prs[idx].panHandlers}
-          style={[
-            styles.thumb,
-            { left: thumbLeft(val) },
-            disabled && styles.disabledThumb,
-          ]}
+          className="absolute w-[48px] h-[48px] rounded-full top-1/2 -mt-[24px]"
+          style={{ left: thumbLeft(val), backgroundColor: disabled ? '#cccccc' : '#2563eb' }}
         />
       ))}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    height: THUMB_SIZE + 20,
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  track: {
-    position: 'absolute',
-    left: THUMB_SIZE / 2,
-    right: THUMB_SIZE / 2,
-    height: TRACK_HEIGHT,
-    backgroundColor: TRACK_COLOR,
-    borderRadius: TRACK_HEIGHT / 2,
-  },
-  activeTrack: {
-    position: 'absolute',
-    height: TRACK_HEIGHT,
-    backgroundColor: PRIMARY,
-    borderRadius: TRACK_HEIGHT / 2,
-  },
-  thumb: {
-    position: 'absolute',
-    width: THUMB_SIZE,
-    height: THUMB_SIZE,
-    borderRadius: THUMB_SIZE / 2,
-    backgroundColor: PRIMARY,
-    top: '50%',
-    marginTop: -(THUMB_SIZE / 2),
-  },
-  disabledThumb: {
-    backgroundColor: '#ccc',
-  },
-});
